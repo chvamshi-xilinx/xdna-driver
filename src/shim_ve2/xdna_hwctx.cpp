@@ -196,6 +196,13 @@ set_slotidx(slot_id id)
   m_handle = id;
 }
 
+size_t
+xdna_hwctx::
+get_num_uc() const
+{
+  return m_num_cols;
+}
+
 xrt_core::cuidx_type
 xdna_hwctx::
 open_cu_context(const std::string& cu_name)
