@@ -1205,8 +1205,11 @@ int ve2_cmd_wait(struct amdxdna_ctx *hwctx, u64 seq, u32 timeout)
 				for (i = 0; i < cmd_count; i++) {
 					u32 slot = (start_slot + i) % capacity;
 
-					/* Sync completion memory before reading (device may have written) */
-					hsa_queue_sync_completion_for_read(&priv_ctx->hwctx_hsa_queue, slot);
+					/* Sync completion memory before reading
+					 * (device may have written)
+					 */
+					hsa_queue_sync_completion_for_read
+						(&priv_ctx->hwctx_hsa_queue, slot);
 					slot_state =
 						priv_ctx->hwctx_hsa_queue.hq_complete.hqc_mem[slot];
 					if (slot_state == ERT_CMD_STATE_ERROR) {

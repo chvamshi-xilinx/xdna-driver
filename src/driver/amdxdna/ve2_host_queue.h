@@ -176,7 +176,7 @@ static inline void hsa_queue_sync_packet_for_write(struct ve2_hsa_queue *queue,
 
 /* Sync indirect header after CPU writes (device will read) */
 static inline void hsa_queue_sync_indirect_hdr_for_write(struct ve2_hsa_queue *queue,
-							  u32 slot_idx)
+							 u32 slot_idx)
 {
 	dma_addr_t hdr_dma_addr = queue->hsa_queue_mem.dma_addr +
 		offsetof(struct hsa_queue, hq_indirect_hdr) +
@@ -190,7 +190,7 @@ static inline void hsa_queue_sync_indirect_hdr_for_write(struct ve2_hsa_queue *q
 
 /* Sync indirect packet after CPU writes (device will read) */
 static inline void hsa_queue_sync_indirect_pkt_for_write(struct ve2_hsa_queue *queue,
-							  u32 uc_idx, u32 slot_idx)
+							 u32 uc_idx, u32 slot_idx)
 {
 	dma_addr_t pkt_dma_addr = queue->hsa_queue_mem.dma_addr +
 		offsetof(struct hsa_queue, hq_indirect_pkt) +
@@ -217,7 +217,7 @@ static inline void hsa_queue_sync_completion_for_read(struct ve2_hsa_queue *queu
 
 /* Sync completion memory after CPU writes (device will read) */
 static inline void hsa_queue_sync_completion_for_write(struct ve2_hsa_queue *queue,
-							u32 slot_idx)
+						       u32 slot_idx)
 {
 	dma_addr_t comp_dma_addr = queue->hq_complete.hqc_dma_addr +
 		slot_idx * sizeof(u64);
