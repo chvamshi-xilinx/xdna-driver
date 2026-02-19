@@ -801,6 +801,9 @@ static void ve2_dump_debug_state(struct amdxdna_dev *xdna,
 	/* hq_lock protects read_index, write_index, reserved_write_index (ve2_host_queue.h) */
 	mutex_lock(&hq->hq_lock);
 
+	/* Sync header before reading (device may have written) */
+	hsa_queue_sync_header_for_read(hq);
+
 	/* Dump HSA queue header */
 	XDNA_WARN(xdna, "HSA Queue Header:\n");
 	XDNA_WARN(xdna, "  read_index:     %llu\n", queue->hq_header.read_index);
@@ -817,6 +820,8 @@ static void ve2_dump_debug_state(struct amdxdna_dev *xdna,
 	/* Dump completion status for all slots */
 	XDNA_WARN(xdna, "HSA Queue Completion Status:\n");
 	for (i = 0; i < HOST_QUEUE_ENTRY; i++) {
+		/* Sync completion memory before reading (device may have written) */
+		hsa_queue_sync_completion_for_read(hq, i);
 		u64 completion = hq->hq_complete.hqc_mem[i];
 
 		if (completion != 0 && completion != ERT_CMD_STATE_INVALID)
