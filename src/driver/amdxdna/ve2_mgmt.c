@@ -801,8 +801,9 @@ static void ve2_dump_debug_state(struct amdxdna_dev *xdna,
 	/* hq_lock protects read_index, write_index, reserved_write_index (ve2_host_queue.h) */
 	mutex_lock(&hq->hq_lock);
 
-	/* Sync header before reading (device may have written) */
-	hsa_queue_sync_header_for_read(hq);
+	/* Sync read_index before reading (device writes this) */
+	hsa_queue_sync_read_index_for_read(hq);
+	/* Note: write_index is written by CPU, so no sync needed for reading */
 
 	/* Dump HSA queue header */
 	XDNA_WARN(xdna, "HSA Queue Header:\n");

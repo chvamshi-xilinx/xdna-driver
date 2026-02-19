@@ -86,8 +86,8 @@ static bool ve2_check_slot_available(struct amdxdna_ctx *hwctx)
 	u32 slot_idx;
 
 	mutex_lock(&queue->hq_lock);
-	/* Sync header before reading read_index (device may have written) */
-	hsa_queue_sync_header_for_read(queue);
+	/* Sync read_index before reading (device may have written) */
+	hsa_queue_sync_read_index_for_read(queue);
 	outstanding = queue->reserved_write_index - header->read_index;
 	if (outstanding >= capacity) {
 		mutex_unlock(&queue->hq_lock);
@@ -155,8 +155,8 @@ hsa_queue_reserve_slot(struct amdxdna_dev *xdna, struct amdxdna_ctx_priv *priv, 
 	/*
 	 * Check against reserved_write_index to account for in-flight reservations.
 	 */
-	/* Sync header before reading read_index (device may have written) */
-	hsa_queue_sync_header_for_read(queue);
+	/* Sync read_index before reading (device may have written) */
+	hsa_queue_sync_read_index_for_read(queue);
 	if (queue->reserved_write_index < header->read_index) {
 		XDNA_ERR(xdna, "HSA Queue: reserved_write_index(%llu) < read_index(%llu)",
 			 queue->reserved_write_index, header->read_index);
@@ -237,8 +237,8 @@ static void hsa_queue_commit_slot(struct amdxdna_dev *xdna, struct amdxdna_ctx_p
 
 		header->write_index++;
 	}
-	/* Sync header after writing write_index (device will read) */
-	hsa_queue_sync_header_for_write(queue);
+	/* Sync write_index after writing (device will read) */
+	hsa_queue_sync_write_index_for_write(queue);
 
 	mutex_unlock(&queue->hq_lock);
 }
@@ -996,8 +996,8 @@ static inline bool check_read_index(struct amdxdna_ctx *hwctx,
 	read_index = (u64 *)((char *)priv_ctx->hwctx_hsa_queue.hsa_queue_p +
 			HSA_QUEUE_READ_INDEX_OFFSET);
 
-	/* Sync header before reading read_index (device may have written) */
-	hsa_queue_sync_header_for_read(&priv_ctx->hwctx_hsa_queue);
+	/* Sync read_index before reading (device may have written) */
+	hsa_queue_sync_read_index_for_read(&priv_ctx->hwctx_hsa_queue);
 
 	if (counter % print_interval == 0) {
 		struct amdxdna_dev *xdna = hwctx->client->xdna;

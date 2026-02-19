@@ -131,23 +131,32 @@ struct ve2_hsa_queue {
  * Since the device is not cache coherent, we need to sync DMA buffers
  * whenever the CPU writes data that the device will read, or when
  * the CPU reads data that the device may have written.
+ *
+ * We sync only specific fields to avoid affecting other fields that
+ * the device may have written.
  */
 
-/* Sync queue header before CPU reads (device may have written) */
-static inline void hsa_queue_sync_header_for_read(struct ve2_hsa_queue *queue)
+/* Sync read_index field before CPU reads (device writes this) */
+static inline void hsa_queue_sync_read_index_for_read(struct ve2_hsa_queue *queue)
 {
+	dma_addr_t read_idx_addr = queue->hsa_queue_mem.dma_addr +
+		offsetof(struct host_queue_header, read_index);
+
 	dma_sync_single_for_cpu(queue->alloc_dev,
-				queue->hsa_queue_mem.dma_addr,
-				sizeof(struct host_queue_header),
+				read_idx_addr,
+				sizeof(queue->hsa_queue_p->hq_header.read_index),
 				DMA_FROM_DEVICE);
 }
 
-/* Sync queue header after CPU writes (device will read) */
-static inline void hsa_queue_sync_header_for_write(struct ve2_hsa_queue *queue)
+/* Sync write_index field after CPU writes (device reads this) */
+static inline void hsa_queue_sync_write_index_for_write(struct ve2_hsa_queue *queue)
 {
+	dma_addr_t write_idx_addr = queue->hsa_queue_mem.dma_addr +
+		offsetof(struct host_queue_header, write_index);
+
 	dma_sync_single_for_device(queue->alloc_dev,
-				   queue->hsa_queue_mem.dma_addr,
-				   sizeof(struct host_queue_header),
+				   write_idx_addr,
+				   sizeof(queue->hsa_queue_p->hq_header.write_index),
 				   DMA_TO_DEVICE);
 }
 

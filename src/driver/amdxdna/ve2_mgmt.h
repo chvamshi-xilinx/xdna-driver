@@ -138,8 +138,8 @@ static inline int get_ctx_read_index(struct amdxdna_ctx *hwctx, u64 *read_index)
 		return -EINVAL;
 
 	queue = &hwctx->priv->hwctx_hsa_queue;
-	/* Sync header before reading read_index (device may have written) */
-	hsa_queue_sync_header_for_read(queue);
+	/* Sync read_index before reading (device may have written) */
+	hsa_queue_sync_read_index_for_read(queue);
 
 	index_ptr = (u64 *)((char *)queue->hsa_queue_p +
 			HSA_QUEUE_READ_INDEX_OFFSET);
@@ -157,8 +157,7 @@ static inline int get_ctx_write_index(struct amdxdna_ctx *hwctx, u64 *write_inde
 		return -EINVAL;
 
 	queue = &hwctx->priv->hwctx_hsa_queue;
-	/* Sync header before reading write_index (device may have written) */
-	hsa_queue_sync_header_for_read(queue);
+	/* write_index is written by CPU, no sync needed for reading */
 
 	index_ptr = (u64 *)((char *)queue->hsa_queue_p +
 			HSA_QUEUE_WRITE_INDEX_OFFSET);
